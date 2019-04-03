@@ -2,6 +2,13 @@ var sourceDataSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Rép
 var resDataSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Feuille 2');
 var last_column = sourceDataSheet.getLastColumn();
 var last_row  = sourceDataSheet.getLastRow();
+//Settings for change ourselves the hour of beginning of each “Jour”, “Soir” and “Nuit”
+  var jour = '07:45';
+  var soir = '15:45';
+  var nuit = '23:45';
+  var jourEnd = '16:00';
+  var soirEnd = '23:59';
+  var nuitEnd = '08:00';
 
 //==============Create menu
 function onOpen()
@@ -82,25 +89,25 @@ function getTimeAndParse(allData){
        var resArr = allData[j][i].split(", ");
         //var searchRes = res.search(/,/);
         if(resArr[0]=='Jour'){        
-          t1 = "08:00";          
+          t1 = jour;          
         }else if(resArr[0]=='Soir'){
-          t1 = "16:00";
+          t1 = soir;
         }else if(resArr[0]=='Nuit'){
-          t1 = "23:00";
+          t1 = nuit;
         }
         if(resArr[1] && resArr[1]=='Jour'){        
-          t2 = "08:00";          
+          t2 = jour;          
         }else if(resArr[1] && resArr[1]=='Soir'){
-          t2 = "16:00";
+          t2 = soir;
         }else if(resArr[1] && resArr[1]=='Nuit'){
-          t2 = "23:00";
+          t2 = nuit;
         }
         if(resArr[2] && resArr[2]=='Jour'){        
-          t3 = "08:00";          
+          t3 = jour;          
         }else if(resArr[2] && resArr[2]=='Soir'){
-          t3 = "16:00";
+          t3 = soir;
         }else if(resArr[2] && resArr[2]=='Nuit'){
-          t3 = "23:00";
+          t3 = nuit;
         }
         timeArray.push([resArr,[t1,t2,t3], dayIndex]);         
       }            
@@ -124,7 +131,7 @@ function printData(timeArr, namesArr, datesArr){
       
       var subject=namesArr[n];
       var temp = datesArr[i];
-      var startDate = convertMonth(temp);
+      var startDate = convertMonth(temp);// value exemple -Arr[dd/mm/yyyy, dd+1/mm/yyyy]
       //Logger.log(temp);
       var timeDesc = timeArr[timeArrIndex][0];// value exemple -[Jour, Soir]
       var startTime =timeArr[timeArrIndex][1];// value exemple -['08:00', '16:00']
@@ -139,7 +146,7 @@ function printData(timeArr, namesArr, datesArr){
         resDataSheet.getRange(rowNumber, 5).setValue(endTime);//End time
         resDataSheet.getRange(rowNumber, 7).setValue(timeDesc[j]);
         // end Date statement
-        if(startTime[j]=="23:00"){
+        if(startTime[j]==nuit){//if startTime begin [nuit = '23:00']->date=date+1day ("nuit" init on top)
            resDataSheet.getRange(rowNumber, 4).setValue(startDate[1]);
         }else if (startTime[j]==""){
           //empty
@@ -162,6 +169,10 @@ function convertMonth(date){
                     'avril','mai','juin',
                     'juillet','aout','septembre',
                     'octobre','novembre','decembre'];
+  var monthNamesFrUpp = ['Janvier','Fèvrier', 'Mars',
+                    'Avril','Mai','Juin',
+                    'Juillet','Aout','Septembre',
+                    'Octobre','Novembre','Decembre'];
   
   var monthNamesEn = ['January','February', 'March',
                     'April','May','June',
@@ -169,12 +180,13 @@ function convertMonth(date){
                     'October','November','December'];
   
   //var dateN = date.substring(1,7);
-  var day = +date.substring(2,4);
-  
-  var monthTemp = date.substring(5,8);
-  //Logger.log(monthTemp);
+  var dateTmp = date.substring(2, date.length - 1);
+  var dateArr = dateTmp.split(' ');
+  var day = +dateArr[0];//get day from dateArr  
+  var monthTemp = dateArr[1];//get month from dateArr
+  Logger.log(dateTmp);
   for(var i=0; i<12;i++){
-    if(monthTemp==monthNamesFr[i]){
+    if(monthTemp==monthNamesFr[i] || monthTemp==monthNamesFrUpp[i]){
       var month=i+1;
     }
   }
@@ -188,12 +200,12 @@ function convertMonth(date){
 function countEndTime(startTime){  
   //Logger.log(startTime);
   var endTime = '';
-  if(startTime=="08:00"){
-    endTime = "16:00";
-  }else if(startTime=="16:00"){
-    endTime = "23:00";
-  }else if(startTime=="23:00"){
-    endTime = "08:00";
+  if(startTime==jour){
+    endTime = jourEnd;
+  }else if(startTime==soir){
+    endTime = soirEnd;
+  }else if(startTime==nuit){
+    endTime = nuitEnd;
   }
   
 //  var timeArr = startTime.split(':');
@@ -202,7 +214,7 @@ function countEndTime(startTime){
   return endTime;
 }
 
-// ============get tab name for if run from menu
+// ============get tab name for if run from menu (NOT IN USE)
 function getTabName(){
   var sheetName = SpreadsheetApp.getActiveSheet().getSheetName();
   //Browser.msgBox(sheetName);
