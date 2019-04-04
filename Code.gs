@@ -10,6 +10,20 @@ var last_row  = sourceDataSheet.getLastRow();
   var soirEnd = '23:59';
   var nuitEnd = '08:00';
 
+// get Additional Month Format
+try{
+  var settingsSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Settings');
+  var mounthFormat = settingsSheet.getRange(2, 1, 12).getValues();
+  Logger.log(mounthFormat);
+}catch (e){
+  var mounthFormat = [0,0,0,0,0,0,0,0,0,0,0,0];
+//  Logger.log(mounthFormat[0]);
+//  Logger.log('Error: ' + e);
+  
+}
+
+
+
 //==============Create menu
 function onOpen()
 {
@@ -165,35 +179,42 @@ function printData(timeArr, namesArr, datesArr){
 function convertMonth(date){
   //Logger.log(date);
   var year = 2019;
-  var monthNamesFr = ['janvier','fèvrier', 'mars',
+  //+++++++++++++++++++++++++++++++++++++++++++++++++
+  // All supported months formats. 
+  //+++++++++++++++++++++++++++++++++++++++++++++++++
+  var monthNamesFr = ['janvier','février', 'mars',
                     'avril','mai','juin',
-                    'juillet','aout','septembre',
-                    'octobre','novembre','decembre'];
-  var monthNamesFrUpp = ['Janvier','Fèvrier', 'Mars',
+                    'juillet','août','septembre',
+                    'octobre','novembre','décembre'];
+  
+  var monthNamesFrUpp = ['Janvier','Février', 'Mars',
                     'Avril','Mai','Juin',
-                    'Juillet','Aout','Septembre',
-                    'Octobre','Novembre','Decembre'];
+                    'Juillet','Août','Septembre',
+                    'Octobre','Novembre','Décembre'];
   
-  var monthNamesEn = ['January','February', 'March',
-                    'April','May','June',
-                    'July','August','September',
-                    'October','November','December'];
-  
-  //var dateN = date.substring(1,7);
-  var dateTmp = date.substring(2, date.length - 1);
+  //+++++++++++++++++++++++++++++++++++++++++++++++++
+  // Split string " [04 mai]" to dateTmp ="04 mai" 
+  var dateTmp = date.split('[')[1].split(']')[0];
   var dateArr = dateTmp.split(' ');
-  var day = +dateArr[0];//get day from dateArr  
+  var day = +dateArr[0];//get day from dateArr 
   var monthTemp = dateArr[1];//get month from dateArr
-  //Logger.log(dateTmp);
+  
+   // Convert month from string to int
   for(var i=0; i<12;i++){
-    if(monthTemp==monthNamesFr[i] || monthTemp==monthNamesFrUpp[i]){
-      var month=i+1;
+    if( monthTemp==monthNamesFr[i] || monthTemp==monthNamesFrUpp[i] || monthTemp==mounthFormat[i] ){
+      var numOfMonth = i+1;
+      var month=i;//numOfMonth.toString();
     }
   }
-  var date=day+"/"+month+"/"+year;
-  var dateFormatted = new Date(year, month-1, day+2 );//convert string to Date format and add 1day 
-  var nextDay = Utilities.formatDate(new Date(dateFormatted), "GMT+2", "dd/MM/YYY");
-  var dateArr=[date,nextDay];
+  // 
+  var dateFormatted = new Date(year, month, day );//converting to Date format 
+  var nextDateFormatted = new Date(year, month, day+1 );//converting to Date format and add 1day 
+  var date  = Utilities.formatDate(new Date(dateFormatted), "GMT+2", "dd/MM/YYY");
+  var nextDate = Utilities.formatDate(new Date(nextDateFormatted), "GMT+2", "dd/MM/YYY");
+  
+  Logger.log('toDay '+date); 
+  Logger.log('toMor '+nextDate); 
+  var dateArr=[date,nextDate];
   return dateArr;  
 }
 
