@@ -184,14 +184,15 @@ function convertMonth(date){
   var dateArr = dateTmp.split(' ');
   var day = +dateArr[0];//get day from dateArr  
   var monthTemp = dateArr[1];//get month from dateArr
-  Logger.log(dateTmp);
+  //Logger.log(dateTmp);
   for(var i=0; i<12;i++){
     if(monthTemp==monthNamesFr[i] || monthTemp==monthNamesFrUpp[i]){
       var month=i+1;
     }
   }
   var date=day+"/"+month+"/"+year;
-  var nextDay = (day+1)+"/"+month+"/"+year;
+  var dateFormatted = new Date(year, month-1, day+2 );//convert string to Date format and add 1day 
+  var nextDay = Utilities.formatDate(new Date(dateFormatted), "GMT+2", "dd/MM/YYY");
   var dateArr=[date,nextDay];
   return dateArr;  
 }
